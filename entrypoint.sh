@@ -4,14 +4,14 @@ set -euo pipefail
 
 # Validate environment variables
 : "${UPSTREAM:?Set UPSTREAM using --env}"
-: "${UPSTREAM_PORT?Set UPSTREAM_PORT using --env}"
+: "${UPSTREAM_PORT:?Set UPSTREAM_PORT using --env}"
+: "${ERROR_PAGE:?Set ERROR_PAGE using --env}"
 PROTOCOL=${PROTOCOL:=HTTP}
 
 # Template an nginx.conf
 cat <<EOF >/etc/nginx/nginx.conf
 user nginx;
 worker_processes 2;
-server_tokens off;
 
 events {
   worker_connections 1024;
@@ -22,6 +22,7 @@ if [ "$PROTOCOL" = "HTTP" ]; then
 cat <<EOF >>/etc/nginx/nginx.conf
 
 http {
+  server_tokens off;
   access_log /var/log/nginx/access.log;
   error_log /var/log/nginx/error.log;
 
@@ -30,6 +31,8 @@ http {
       proxy_pass http://${UPSTREAM}:${UPSTREAM_PORT};
       proxy_set_header Host \$host;
       proxy_set_header X-Forwarded-For \$remote_addr;
+      proxy_intercept_errors on;
+      error_page 400 403 404 405 414 416 500 501 502 503 504 ${ERROR_PAGE};
     }
   }
 }
