@@ -32,7 +32,7 @@ http {
       proxy_set_header Host \$host;
       proxy_set_header X-Forwarded-For \$remote_addr;
       proxy_intercept_errors on;
-      error_page 400 403 404 405 414 416 500 501 502 503 504 ${ERROR_PAGE};
+      error_page 403 405 414 416 500 501 502 503 504 ${ERROR_PAGE};
     }
   }
 }
