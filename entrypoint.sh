@@ -6,6 +6,7 @@ set -euo pipefail
 : "${UPSTREAM:?Set UPSTREAM using --env}"
 : "${UPSTREAM_PORT:?Set UPSTREAM_PORT using --env}"
 : "${ERROR_PAGE:?Set ERROR_PAGE using --env}"
+: "${CLIENT_MAX_BODY_SIZE:?Set CLIENT_MAX_BODY_SIZE using --env}"
 PROTOCOL=${PROTOCOL:=HTTP}
 
 # Template an nginx.conf
@@ -31,8 +32,8 @@ http {
       proxy_pass http://${UPSTREAM}:${UPSTREAM_PORT};
       proxy_set_header Host \$host;
       proxy_set_header X-Forwarded-For \$remote_addr;
-      proxy_intercept_errors on;
       error_page 403 405 414 416 500 501 502 503 504 ${ERROR_PAGE};
+      client_max_body_size ${CLIENT_MAX_BODY_SIZE};
     }
   }
 }
