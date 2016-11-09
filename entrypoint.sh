@@ -7,12 +7,12 @@ set -euo pipefail
 : "${UPSTREAM_PORT:?Set UPSTREAM_PORT using --env}"
 : "${ERROR_PAGE:?Set ERROR_PAGE using --env}"
 : "${CLIENT_MAX_BODY_SIZE:?Set CLIENT_MAX_BODY_SIZE using --env}"
-: "${ADMIN_ALLOW:?Set ADMIN_ALLOW using --env}"
-: "${ADMIN_DENY:?Set ADMIN_DENY using --env}"
 : "${CLIENT_BODY_TIMEOUT:?Set CLIENT_BODY_TIMEOUT using --env}"
 : "${CLIENT_HEADER_TIMEOUT:?Set CLIENT_HEADER_TIMEOUT using --env}"
 : "${KEEPALIVE_TIMEOUT:?Set KEEPALIVE_TIMEOUT using --env}"
 : "${SEND_TIMEOUT:?Set SEND_TIMEOUT using --env}"
+: "${ADMIN_IP_WHITELIST_REGEX:?Set ADMIN_IP_WHITELIST_REGEX using --env}"
+: "${IP_WHITELIST_REGEX:?Set IP_WHITELIST_REGEX using --env}"
 PROTOCOL=${PROTOCOL:=HTTP}
 
 # Template an nginx.conf
@@ -57,12 +57,26 @@ http {
 
     location ^~ /admin/ {
       include /etc/nginx/directory_proxy.conf;
-      allow ${ADMIN_ALLOW};
-      deny ${ADMIN_DENY};
+
+      set \$allow false;
+      if (\$http_x_forwarded_for ~ ${ADMIN_IP_WHITELIST_REGEX}) {
+         set \$allow true;
+      }
+      if (\$allow = false) {
+         return 403;
+      }
     }
 
     if (\$http_x_forwarded_proto != 'https') {
       return 301 https://\$host\$request_uri;
+    }
+
+    set \$allow false;
+    if (\$http_x_forwarded_for ~ ${IP_WHITELIST_REGEX}) {
+       set \$allow true;
+    }
+    if (\$allow = false) {
+       return 403;
     }
 
   }
