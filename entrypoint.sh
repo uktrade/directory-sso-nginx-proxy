@@ -32,11 +32,6 @@ proxy_pass http://${UPSTREAM}:${UPSTREAM_PORT};
 proxy_set_header Host \$host;
 proxy_set_header X-Forwarded-For \$remote_addr;
 error_page 403 405 414 416 500 501 502 503 504 ${ERROR_PAGE};
-client_max_body_size ${CLIENT_MAX_BODY_SIZE};
-client_body_timeout ${CLIENT_BODY_TIMEOUT};
-client_header_timeout ${CLIENT_HEADER_TIMEOUT};
-keepalive_timeout ${KEEPALIVE_TIMEOUT};
-send_timeout ${SEND_TIMEOUT};
 add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
 add_header X-Frame-Options DENY;
 add_header X-Content-Type-Options nosniff;
@@ -49,6 +44,11 @@ http {
   server_tokens off;
   access_log /var/log/nginx/access.log;
   error_log /var/log/nginx/error.log;
+  client_max_body_size ${CLIENT_MAX_BODY_SIZE};
+  client_body_timeout ${CLIENT_BODY_TIMEOUT};
+  client_header_timeout ${CLIENT_HEADER_TIMEOUT};
+  keepalive_timeout ${KEEPALIVE_TIMEOUT};
+  send_timeout ${SEND_TIMEOUT};
 
   server {
     location / {
