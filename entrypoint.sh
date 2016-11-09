@@ -61,7 +61,7 @@ http {
       deny ${ADMIN_DENY};
     }
 
-    if ($http_x_forwarded_proto != 'https') {
+    if (\$http_x_forwarded_proto != 'https') {
       return 301 https://\$host\$request_uri;
     }
 
