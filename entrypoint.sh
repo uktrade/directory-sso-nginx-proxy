@@ -9,6 +9,10 @@ set -euo pipefail
 : "${CLIENT_MAX_BODY_SIZE:?Set CLIENT_MAX_BODY_SIZE using --env}"
 : "${ADMIN_ALLOW:?Set ADMIN_ALLOW using --env}"
 : "${ADMIN_DENY:?Set ADMIN_DENY using --env}"
+: "${CLIENT_BODY_TIMEOUT:?Set CLIENT_BODY_TIMEOUT using --env}"
+: "${CLIENT_HEADER_TIMEOUT:?Set CLIENT_HEADER_TIMEOUT using --env}"
+: "${KEEPALIVE_TIMEOUT:?Set KEEPALIVE_TIMEOUT using --env}"
+: "${SEND_TIMEOUT:?Set SEND_TIMEOUT using --env}"
 PROTOCOL=${PROTOCOL:=HTTP}
 
 # Template an nginx.conf
@@ -29,9 +33,14 @@ proxy_set_header Host \$host;
 proxy_set_header X-Forwarded-For \$remote_addr;
 error_page 403 405 414 416 500 501 502 503 504 ${ERROR_PAGE};
 client_max_body_size ${CLIENT_MAX_BODY_SIZE};
+client_body_timeout ${CLIENT_BODY_TIMEOUT};
+client_header_timeout ${CLIENT_HEADER_TIMEOUT};
+keepalive_timeout ${KEEPALIVE_TIMEOUT};
+send_timeout ${SEND_TIMEOUT};
 add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
 add_header X-Frame-Options DENY;
 add_header X-Content-Type-Options nosniff;
+add_header X-XSS-Protection "1; mode=block";
 EOF
 
 cat <<EOF >>/etc/nginx/nginx.conf
