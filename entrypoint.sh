@@ -12,7 +12,6 @@ set -euo pipefail
 : "${KEEPALIVE_TIMEOUT:?Set KEEPALIVE_TIMEOUT using --env}"
 : "${SEND_TIMEOUT:?Set SEND_TIMEOUT using --env}"
 : "${ADMIN_IP_WHITELIST_REGEX:?Set ADMIN_IP_WHITELIST_REGEX using --env}"
-: "${IP_WHITELIST_REGEX:?Set IP_WHITELIST_REGEX using --env}"
 PROTOCOL=${PROTOCOL:=HTTP}
 
 # Template an nginx.conf
@@ -70,15 +69,6 @@ http {
     if (\$http_x_forwarded_proto != 'https') {
       return 301 https://\$host\$request_uri;
     }
-
-    set \$allow false;
-    if (\$http_x_forwarded_for ~ ${IP_WHITELIST_REGEX}) {
-       set \$allow true;
-    }
-    if (\$allow = false) {
-       return 403;
-    }
-
   }
 }
 EOF
